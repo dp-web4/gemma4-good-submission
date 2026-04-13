@@ -1,0 +1,36 @@
+__pycache__/
+*.py[cod]
+*.so
+.Python
+*.egg-info/
+.venv/
+venv/
+.env
+.env.local
+
+# Model weights — never commit
+*.safetensors
+*.bin
+*.gguf
+models/
+weights/
+
+# Generated attestations / identity material (private per machine)
+*.sealed
+identity.sealed
+identity.attest.json
+
+# Local runtime state
+*.jsonl.local
+runs/
+logs/
+cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
