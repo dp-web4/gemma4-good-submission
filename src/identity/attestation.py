@@ -58,7 +58,11 @@ class AttestationEnvelope:
 
     @property
     def expires_epoch(self) -> float:
-        return time.mktime(time.strptime(self.expires_at, "%Y-%m-%dT%H:%M:%SZ"))
+        # calendar.timegm interprets as UTC (matching how we emitted it);
+        # time.mktime would treat it as local and introduce a TZ off-by-N.
+        import calendar
+
+        return calendar.timegm(time.strptime(self.expires_at, "%Y-%m-%dT%H:%M:%SZ"))
 
     def is_fresh(self, now: float | None = None) -> bool:
         now = now if now is not None else _now()
