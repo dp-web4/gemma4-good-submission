@@ -43,3 +43,13 @@ across the fleet with models from 0.8B (Sprout) to 27B (Thor).
 
 **Key visual**: game being played, world model updating in context,
 actions logged as training data.
+
+**Related work**: the [ARC-SAGE paper](https://github.com/dp-web4/ARC-SAGE)
+(MIT-0, ARC Prize 2026 Paper Track) reports 84.9% on the ARC-AGI-3 public
+set using a frontier-model harness with explicit Phase 2 transfer to
+Gemma 4 (E4B primary, E2B small-device, 26B-A4B aspirational) via
+Andy Grossberg's paired-lattice cartridge architecture. The hackathon
+submission here shares the same deployment target family and the same
+"signed audit bundle = training data" principle — capability discovered
+with a frontier model, compiled into artifacts a small model can
+retrieve rather than re-derive.

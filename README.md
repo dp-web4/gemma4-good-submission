@@ -53,6 +53,8 @@ The submission stack:
 Deeper implementations are open-source elsewhere:
 - [SAGE](https://github.com/dp-web4/SAGE) (AGPL v3) — full cognition kernel
 - [web4](https://github.com/dp-web4/web4) (AGPL v3) — trust-native ontology
+- [ARC-SAGE](https://github.com/dp-web4/ARC-SAGE) (MIT-0) — ARC-AGI-3 harness,
+  84.9% public-set result, Gemma 4 deployment path (paper track, ARC Prize 2026)
 
 This submission repo provides a **clean-room minimal Apache 2.0 subset**
 suitable for hackathon distribution and production integration.
