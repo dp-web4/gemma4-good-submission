@@ -16,6 +16,7 @@ Cognition — the integration loop.
 """
 
 from .executor import Executor, Outcome, StubExecutor
+from .gemma_executor import GemmaOllamaExecutor, is_model_available
 from .loop import CognitionLoop, TickReport
 
 __all__ = [
@@ -24,4 +25,6 @@ __all__ = [
     "Executor",
     "Outcome",
     "StubExecutor",
+    "GemmaOllamaExecutor",
+    "is_model_available",
 ]
