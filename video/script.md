@@ -185,9 +185,9 @@ github.com/dp-web4/gemma4-good-submission
 > Safety is not a filter. Global resilience is not a checkbox. They are
 > shapes — shapes that actions, identities, and laws have to fit to work
 > together. We built the smallest possible implementation of those shapes
-> and showed them working on a laptop GPU with a three-billion-parameter
-> model. The repo is public. The license is Apache 2.0. The loop is
-> already running.
+> and showed them working on a laptop GPU with a two-to-five-billion-
+> parameter model. The repo is public. The license is Apache 2.0. The
+> loop is already running.
 
 ---
 
