@@ -731,17 +731,19 @@ uses.** Everything else follows.
 ### A Test summary
 
 ```
-tests/test_r6.py           22 passed
-tests/test_identity.py     29 passed
-tests/test_trust.py        22 passed
-tests/test_law.py          25 passed
-tests/test_policy.py       24 passed
-tests/test_snarc.py        30 passed
-tests/test_energy.py       31 passed
-tests/test_dreamcycle.py   20 passed
-tests/test_federation.py   22 passed
-─────────────────────────────────────
-                          225 passed
+tests/test_r6.py             22 passed
+tests/test_identity.py       29 passed
+tests/test_trust.py          22 passed
+tests/test_law.py            25 passed
+tests/test_policy.py         24 passed
+tests/test_snarc.py          30 passed
+tests/test_energy.py         31 passed
+tests/test_dreamcycle.py     20 passed
+tests/test_federation.py     22 passed
+tests/test_cognition.py      20 passed
+tests/test_gemma_executor.py  7 passed  (1 live, skipped if no ollama)
+─────────────────────────────────────────
+                            252 passed
 ```
 
 ### B File layout
@@ -790,6 +792,142 @@ gemma4-good-submission/
 | PolicyGate | `SAGE/sage/docs/SOIA_IRP_MAPPING.md` |
 | SNARC | `SAGE/sage/core/sage_consciousness.py` (step 2) |
 | Dream bundles | `SAGE/sage/instances/sleep_capability.py` |
+
+### D Live demo output
+
+All output below is produced by the actual code on a real machine
+(RTX 4060 8GB laptop, WSL). No edits, no elisions beyond truncating
+very long identifiers. Reproduce with:
+
+```
+python -m demo.run_demo            # five-arc narrative demo (StubExecutor)
+python -m demo.gemma_smoke         # two ticks through Gemma 4 via Ollama
+```
+
+#### D.1 Arc 3 — Policy challenge (from `run_demo.py --arc 3`)
+
+```
+========================================================================
+  ARC 3 — POLICY CHALLENGE
+========================================================================
+    An agent requests action; PolicyGate evaluates it against signed law.
+
+  ✓ LawBundle b:arc-demo registered (digest 01721a6bf4a01759…)
+    legislator: lct:legislator; witnesses: 1
+
+  [request A] click_green_block, cost 1.0 — within max_cost
+  ✓   verdict=allow; reason=all applicable laws passed
+      law_ref.bundle_digest = 01721a6bf4a01759…
+      decision signed: True
+
+  [request B] click_everything, cost 100.0 — violates cost cap
+  ✓   verdict=deny; reason=law:cost-cap:cost_exceeded:100.0>5.0
+      action.status = denied
+      (no energy consumed on deny)
+```
+
+Note the `law_ref.bundle_digest` in the allow output exactly matches
+the bundle digest shown at registration. The denial cites the
+specific law and rule that failed; there is no post-hoc
+reconstruction needed.
+
+#### D.2 Arc 4 — Partition recovery (from `run_demo.py --arc 4`)
+
+```
+========================================================================
+  ARC 4 — PARTITION RECOVERY
+========================================================================
+  ✓ both agents have law version 1 (digest 056409e454b33595…)
+  ✓ [partition] alice registers law v2 (cost cap now 2.0)
+  ✓ reconnected — mutual_auth complete
+  ✓ bob diffs against alice: peer_newer scopes = ['demo']
+  ✓ bob reconciled: 1 accepted, 0 rejected
+    bob.active('demo').version = 2
+  ✓ final diff: peer_newer=[] peer_unknown=[]
+```
+
+No coordinator. No consensus protocol. Signed law is self-reconciling.
+
+#### D.3 Arc 5 — Embodiment + dreamcycle (from `run_demo.py --arc 5`)
+
+```
+========================================================================
+  ARC 5 — EMBODIMENT + DREAMCYCLE
+========================================================================
+  ✓ session complete — 5 ticks, 5 executed
+  ✓ dream bundle emitted — 3 of 5 entries retained
+    bundle digest c114221bcf5b8093…
+    salience threshold used: 0.25
+      • react to: novel green block encountered  [novelty=1.00, arousal=0.80]
+      • react to: red block appears — unexpected  [novelty=0.78, arousal=0.90]
+      • react to: level transition event         [novelty=1.00, reward=0.90]
+  ✓ bundle saved → loaded; digest match: True
+```
+
+Three of five ticks cleared the SNARC composite threshold (0.25).
+The rest are dropped — salience filtering at sleep time is exactly
+the consolidation semantic the paper describes.
+
+#### D.4 Live Gemma 4 via Ollama (from `gemma_smoke.py --model gemma4:e2b`)
+
+```
+Using model: gemma4:e2b
+
+--- tick 1 ---
+  verdict       : allow
+  status        : completed
+  elapsed       : 7.93s
+  quality       : 0.90
+  v3.composite  : 0.93
+  energy_spent  : 1.0
+  law_ref.digest: 49ef3351302d491b…
+  signed        : True
+  output (head) : 'Move to the green block to investigate its contents.
+                  This is the most direct first step to gain information
+                  from the visual input.
+                  {"quality": 0.9, "valuation": 0.8,
+                   "veracity": 1.0, "validity": 1.0}'
+
+--- tick 2 ---
+  verdict       : allow
+  status        : completed
+  elapsed       : 0.87s
+  quality       : 0.90
+  v3.composite  : 0.93
+  energy_spent  : 1.0
+  law_ref.digest: 49ef3351302d491b…
+  signed        : True
+  output (head) : 'act
+                  Track the position and boundaries of the smoke in the new
+                  frame. This will allow for tracking its movement.
+                  {"quality": 0.9, "valuation": 0.8,
+                   "veracity": 1.0, "validity": 1.0}'
+
+All artifacts verified offline. Smoke test complete.
+```
+
+Two real Gemma 4 E2B ticks through the full cognition loop on an 8GB
+laptop GPU. First tick includes cold-load time (~7s); subsequent ticks
+are sub-second. The model's self-assessment JSON block parses cleanly
+into `Outcome.quality` and `Outcome.value`; the full R6Action + signed
+Decision + V3-settled ATP packets land in the Consolidator buffer.
+
+The plan output ("Move to the green block to investigate its
+contents…") is concrete, references a named object from the
+observation, and satisfies the acceptance criterion ("suggest a
+concrete first move"). This is shape-native output — the model is
+already producing the structure the system expects, unprompted at the
+final-JSON level. A LoRA fine-tune on audit-bundle data
+(see `docs/unsloth-stretch.md`) is the natural next step to make this
+behavior reliable across model variants.
+
+#### D.5 Notebook
+
+The same sequence runs end-to-end in `notebooks/attested_resilience.ipynb`,
+suitable for Kaggle. The notebook auto-selects the best available
+Gemma 4 tag via Ollama; if none is available it falls back to the
+deterministic StubExecutor so the full architecture remains
+demonstrable even without a model.
 
 ---
 
