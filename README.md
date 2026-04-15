@@ -120,6 +120,8 @@ python -m venv .venv && .venv/bin/pip install -r requirements.txt
   modules to demonstrable scenarios
 - [`docs/architecture.md`](docs/architecture.md) — short architecture
   overview
+- [`docs/unsloth-stretch.md`](docs/unsloth-stretch.md) — LoRA fine-tune
+  stretch goal ($10K Unsloth prize); dream bundles as training data
 
 ## Related work
 
