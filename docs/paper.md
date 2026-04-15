@@ -528,8 +528,22 @@ Target fleet (configuration realized today):
 | Legion | 16GB | Gemma 4 E4B | Worker |
 | McNugget | 16GB | Gemma 4 E4B | Worker |
 | Nomad | varies | Gemma 4 E4B (migration) | Worker |
-| CBP | varies | Gemma 4 E4B (migration) | Worker |
+| CBP | **8GB laptop GPU** | Gemma 4 E2B | Worker (E4B too tight) |
 | Sprout | **8GB Jetson Orin Nano** | Qwen (stays) | Edge demonstrator |
+
+### 6.1 VRAM gate for Gemma 4 variants
+
+| Variant | Smallest ollama tag | Size | Fits |
+|---------|---------------------|------|------|
+| E2B | `gemma4:e2b` | 7.2GB | ≥ 8GB VRAM (tight) |
+| E4B | `gemma4:e4b-it-q4_K_M` | 9.6GB | ≥ 12GB VRAM recommended |
+| 26B-A4B | `gemma4:26b-a4b-q4_K_M` | varies | ≥ 24GB VRAM |
+
+We confirmed live on a RTX 4060 8GB (WSL) that E2B runs comfortably
+(~1s per cognition tick with think=False); E4B at q4_K_M exceeds the
+8GB budget and forces CPU offload to the point of being unusable.
+CBP hit the same wall. Legion and McNugget (16GB) are the real E4B
+homes in the fleet. Thor runs 26B-A4B.
 
 **Sprout stays on Qwen.** 8GB total memory is tight for Gemma 4 E2B
 after accounting for OS, attention, and other fleet services. Rather
@@ -538,6 +552,13 @@ doesn't care what model a machine runs. Attestation envelopes,
 policy decisions, dream bundles — all are model-agnostic. An audit
 bundle signed by Sprout (Qwen) verifies identically to one signed by
 Thor (Gemma 4 26B-A4B).
+
+**Different Gemma 4 variants per machine is a feature.** An 8GB
+laptop GPU runs E2B; a 16GB workstation GPU runs E4B; a
+workstation with 24GB+ runs 26B-A4B. The `GemmaOllamaExecutor`
+adapter is identical across all three — only the model tag changes.
+This makes the submission deployable on realistic, non-uniform
+consumer hardware without per-machine code paths.
 
 This is the real "constrained environments" story: the system works
 *across* constraint boundaries, not by pretending they don't exist.
