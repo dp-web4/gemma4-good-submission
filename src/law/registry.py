@@ -30,10 +30,15 @@ class LawRegistry:
       - At most one ACTIVE bundle per scope.
       - A newer-version bundle for the same scope supersedes its predecessor.
       - Loading a malformed or invalid-signature bundle is rejected.
+
+    Bundles themselves are immutable (they are signed). Supersession chains
+    are tracked in an internal map keyed by the new bundle's id so the
+    chain can be reconstructed later.
     """
 
     _by_scope: dict[str, LawBundle] = field(default_factory=dict)
     _history: list[LawBundle] = field(default_factory=list)
+    _supersedes: dict[str, str] = field(default_factory=dict)  # new_id → old_id
     required_witnesses: int = 0
 
     def register(self, bundle: LawBundle) -> None:
@@ -51,9 +56,9 @@ class LawRegistry:
                     f"is not newer than active version {existing.version} "
                     f"for scope {bundle.scope!r}"
                 )
-            # supersession bookkeeping
-            if not bundle.supersedes_bundle:
-                bundle.supersedes_bundle = existing.bundle_id
+            # Track supersession in registry-local map; do NOT mutate the
+            # signed bundle — that would invalidate its signature.
+            self._supersedes[bundle.bundle_id] = existing.bundle_id
         self._history.append(bundle)
         self._by_scope[bundle.scope] = bundle
 
@@ -66,18 +71,26 @@ class LawRegistry:
         return list(self._history)
 
     def supersession_chain(self, scope: str) -> list[LawBundle]:
-        """Walk back from active bundle through supersedes_bundle chain.
+        """Walk back from active bundle through the supersession map.
 
         Most recent first. Last entry is the oldest bundle for this scope
-        that we have on record.
+        that we have on record. Uses the registry's internal supersession
+        map (the bundles themselves are immutable signed artifacts).
+        Bundles with their own legislator-set `supersedes_bundle` field
+        are honored as a fallback when the registry hasn't recorded the
+        link.
         """
         current = self.active(scope)
         if current is None:
             return []
         by_id = {b.bundle_id: b for b in self._history}
         chain = [current]
-        while chain[-1].supersedes_bundle:
-            prev = by_id.get(chain[-1].supersedes_bundle)
+        while True:
+            cur = chain[-1]
+            prev_id = self._supersedes.get(cur.bundle_id) or cur.supersedes_bundle
+            if not prev_id:
+                break
+            prev = by_id.get(prev_id)
             if prev is None:
                 break
             chain.append(prev)

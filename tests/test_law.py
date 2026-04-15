@@ -277,7 +277,10 @@ class TestLawRegistry:
         reg.register(b1)
         reg.register(b2)
         assert reg.active("demo") is b2
-        assert b2.supersedes_bundle == "b:1"
+        # Bundle is NOT mutated — registry tracks supersession internally
+        assert b2.supersedes_bundle == ""
+        chain = reg.supersession_chain("demo")
+        assert [b.bundle_id for b in chain] == ["b:2", "b:1"]
 
     def test_older_version_rejected(self):
         reg = LawRegistry()
