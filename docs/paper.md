@@ -484,6 +484,45 @@ chain without a network call.
 The shape is invariant across all four steps. Nothing transforms.
 Nothing loses its signed provenance.
 
+### 4.4 Progression, not status
+
+A concrete example of why the audit trail matters more than the
+summary.
+
+During the ARC-AGI-3 campaign, seven independent agents investigated
+game `lf52` level 7 and converged on the verdict "structurally
+unsolvable." A coordination file recorded `status: terminal_engine_limit`.
+A second phase bypassed the level via a direct `eq.win()` call —
+scored for the competition but flagged as an engine bug. The
+coordination file updated to `status: solved`.
+
+A third phase — triggered by a human hint from Discord — reframed
+the problem entirely: the red piece serves the same function as the
+blue piece on a different level (transportable stepping stone,
+jumpable-over, never removed). Six agents had missed it because they
+searched for blue pieces specifically. The legitimate solution was
+found by asking "what does this object *do*" instead of "what color
+is it."
+
+An AI reading the final coordination record sees `"solved": true` and
+reports it as a flat fact. The three-phase progression — consensus on
+unsolvable → bypass → reframe from external signal → legitimate solve
+— is invisible in the summary. It was visible in the commit history,
+but only if you read the trail instead of the cache.
+
+**This is exactly the failure mode R6 audit bundles prevent.** If each
+investigation phase had been an R6Action with its own signed Decision
+and law_ref, the progression would be structurally visible: seven
+DENY decisions citing "no valid jumps" under law version 1, one ALLOW
+citing "bypass" under law version 2, one ALLOW citing "functional
+reframe" under law version 3. The audit trail *is* the progression.
+The summary is just the last entry.
+
+The lesson: **when an AI reports a status, the interesting part is
+usually the path that produced it.** Architecture that preserves the
+path by construction — rather than requiring someone to say "look
+deeper" — is governance architecture.
+
 ---
 
 ## 5 Canonical alignment
